@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="2" passed="2" failed="0" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2026-05-25T00:13:39 IST" name="Markzy UI Tests" finished-at="2026-05-25T00:13:57 IST" duration-ms="18609">
+    <groups>
+    </groups>
+    <test started-at="2026-05-25T00:13:39 IST" name="Authentication Tests" finished-at="2026-05-25T00:13:57 IST" duration-ms="18609">
+      <class name="com.markzy.tests.LoginTest">
+        <test-method is-config="true" signature="setup()[pri:0, instance:com.markzy.tests.LoginTest@7c0c77c7]" started-at="2026-05-25T00:13:48 IST" name="setup" finished-at="2026-05-25T00:13:50 IST" duration-ms="1924" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setup -->
+        <test-method signature="testSuccessfulLogin()[pri:0, instance:com.markzy.tests.LoginTest@7c0c77c7]" started-at="2026-05-25T00:13:50 IST" name="testSuccessfulLogin" finished-at="2026-05-25T00:13:57 IST" duration-ms="7081" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testSuccessfulLogin -->
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:com.markzy.tests.LoginTest@7c0c77c7]" started-at="2026-05-25T00:13:57 IST" name="tearDown" finished-at="2026-05-25T00:13:57 IST" duration-ms="184" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDown -->
+      </class> <!-- com.markzy.tests.LoginTest -->
+      <class name="com.markzy.tests.RegisterTest">
+        <test-method is-config="true" signature="setupSuite()[pri:0, instance:com.markzy.tests.RegisterTest@3cc2931c]" started-at="2026-05-25T00:13:38 IST" name="setupSuite" finished-at="2026-05-25T00:13:39 IST" duration-ms="489" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setupSuite -->
+        <test-method is-config="true" signature="setup()[pri:0, instance:com.markzy.tests.RegisterTest@3cc2931c]" started-at="2026-05-25T00:13:39 IST" name="setup" finished-at="2026-05-25T00:13:42 IST" duration-ms="2975" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setup -->
+        <test-method signature="testSuccessfulRegistrationFlow()[pri:0, instance:com.markzy.tests.RegisterTest@3cc2931c]" started-at="2026-05-25T00:13:42 IST" name="testSuccessfulRegistrationFlow" finished-at="2026-05-25T00:13:48 IST" duration-ms="6297" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testSuccessfulRegistrationFlow -->
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:com.markzy.tests.RegisterTest@3cc2931c]" started-at="2026-05-25T00:13:48 IST" name="tearDown" finished-at="2026-05-25T00:13:48 IST" duration-ms="115" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDown -->
+      </class> <!-- com.markzy.tests.RegisterTest -->
+    </test> <!-- Authentication Tests -->
+  </suite> <!-- Markzy UI Tests -->
+</testng-results>
