@@ -21,6 +21,7 @@ export default function HelpCenter() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [showContactForm, setShowContactForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [contactForm, setContactForm] = useState({
     subject: '',
     description: '',
@@ -30,8 +31,10 @@ export default function HelpCenter() {
     userName: ''
   });
 
+  const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
+
   // Ticket History Component
-  const TicketHistory: React.FC = () => {
+  const TicketHistory: React.FC<{ refreshTrigger?: number }> = ({ refreshTrigger = 0 }) => {
     const [tickets, setTickets] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -40,7 +43,7 @@ export default function HelpCenter() {
 
     useEffect(() => {
       fetchTickets();
-    }, []);
+    }, [refreshTrigger]);
 
     const fetchTickets = async () => {
       try {
@@ -51,8 +54,12 @@ export default function HelpCenter() {
         const userData = localStorage.getItem('userData');
         const user = userData ? JSON.parse(userData) : null;
 
+        console.log('Fetching tickets for user:', user?.email);
+        console.log('Token exists:', !!token);
+
         const queryParams = new URLSearchParams();
         if (user?.email) queryParams.append('userEmail', user.email);
+        if (token) queryParams.append('token', token);
 
         const response = await fetch(`/api/help-center/tickets?${queryParams.toString()}`, {
           method: 'GET',
@@ -62,16 +69,18 @@ export default function HelpCenter() {
           },
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setTickets(data.tickets || data);
+        const data = await response.json();
+        console.log('Fetch tickets response:', data);
+
+        if (response.ok && data.success) {
+          setTickets(data.tickets || []);
         } else {
-          throw new Error('Failed to fetch tickets');
+          throw new Error(data.message || 'Failed to fetch tickets');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching tickets:', error);
-        setError('Failed to load ticket history');
-        toast.error('❌ Failed to load ticket history');
+        setError(error.message || 'Failed to load ticket history');
+        // No toast notification here as per user request to avoid noise during automation/loading
       } finally {
         setLoading(false);
       }
@@ -412,7 +421,7 @@ export default function HelpCenter() {
     }
   ];
 
-  const handleContactSubmit = async (e: React.FormEvent) => {
+    const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
@@ -428,7 +437,9 @@ export default function HelpCenter() {
         createdAt: new Date().toISOString()
       };
 
-      const response = await fetch('/api/help-center/tickets', {
+      console.log('Submitting ticket with token:', !!token);
+
+      const response = await fetch(`/api/help-center/tickets?token=${encodeURIComponent(token || '')}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -437,18 +448,12 @@ export default function HelpCenter() {
         body: JSON.stringify(ticketData)
       });
 
-      if (response.ok) {
+      const data = await response.json();
+      console.log('Ticket submission response:', data);
+
+      if (response.ok && data.success) {
         // Show success toast notification
-        toast.success('🎉 Ticket submitted successfully! Our team will get back to you soon.', {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
+        toast.success('🎉 Ticket submitted successfully! Our team will get back to you soon.');
 
         // Reset form
         setContactForm({
@@ -460,32 +465,14 @@ export default function HelpCenter() {
           userName: ''
         });
         setShowContactForm(false);
+        // Refresh ticket history
+        triggerRefresh();
       } else {
-        // Show error toast notification
-        toast.error('❌ Failed to submit ticket. Please try again.', {
-          position: "top-right",
-          autoClose: 4000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-        });
+        throw new Error(data.message || 'Failed to submit ticket');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting ticket:', error);
-      // Show error toast notification
-      toast.error('❌ An error occurred. Please try again.', {
-        position: "top-right",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      toast.error(`❌ ${error.message || 'An error occurred. Please try again.'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -776,7 +763,7 @@ export default function HelpCenter() {
 
           {/* Ticket History */}
           <section className="w-full mb-4">
-            <TicketHistory />
+            <TicketHistory refreshTrigger={refreshTrigger} />
           </section>
 
         </div>

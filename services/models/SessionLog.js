@@ -32,7 +32,7 @@ class SessionLog {
   async save() {
     const sb = getSupabase();
     const row = {
-      user_id: this.userId,
+      user_id: String(this.userId),
       login_at: new Date(this.loginAt).toISOString(),
       logout_at: this.logoutAt ? new Date(this.logoutAt).toISOString() : null,
       duration: this.duration || 0,
@@ -41,11 +41,18 @@ class SessionLog {
       user_agent: this.userAgent || null,
       is_active: this.isActive,
     };
-    const { data, error } = await sb.from('session_logs').insert(row).select('*').single();
-    if (error) throw error;
-    Object.assign(this, toLog(data));
-    this._id = data.id;
-    return this;
+    try {
+      const { data, error } = await sb.from('session_logs').insert(row).select('*').single();
+      if (error) throw error;
+      if (data) {
+        Object.assign(this, toLog(data));
+        this._id = data.id;
+      }
+      return this;
+    } catch (err) {
+      console.error('SessionLog save error:', err);
+      return this; // Return self to prevent breaking the flow
+    }
   }
 }
 

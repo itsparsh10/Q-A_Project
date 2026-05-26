@@ -107,7 +107,7 @@ export default function Account() {
       // Fetch latest user data from database
       const fetchUserData = async () => {
         try {
-          const response = await fetch("/api/user/profile", {
+          const response = await fetch(`/api/user/profile?token=${encodeURIComponent(token || '')}`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -217,24 +217,29 @@ export default function Account() {
     setIsSaving(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Update user data
-      setUserData((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          name: `${editForm.firstName} ${editForm.lastName}`,
-          email: editForm.email,
-          additionalData: {
-            ...prev.additionalData,
-            companyName: editForm.companyName,
-            jobTitle: editForm.jobTitle,
-            website: editForm.website,
-          },
-        };
+      const token = localStorage.getItem("authToken");
+      
+      const response = await fetch(`/api/user/profile?token=${encodeURIComponent(token || '')}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editForm),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update profile");
+      }
+
+      const data = await response.json();
+
+      // Update local user data with the response from API
+      setUserData(data.user);
+      
+      // Also update localStorage
+      localStorage.setItem("userData", JSON.stringify(data.user));
 
       setIsEditing(false);
 
@@ -252,11 +257,11 @@ export default function Account() {
           theme: "light",
         }
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving changes:", error);
 
       // Show error notification
-      toast.error("Failed to update profile. Please try again.", {
+      toast.error(error.message || "Failed to update profile. Please try again.", {
         position: "top-right",
         autoClose: 4000,
         hideProgressBar: false,
@@ -360,12 +365,7 @@ export default function Account() {
       } catch (error) {
         console.error("Error fetching payment history:", error);
         setError("Failed to load payment history");
-        // Show only one toast notification for payment history errors
-        toast.error("Failed to load payment history. Please try again.", {
-          position: "top-right",
-          autoClose: 3000,
-          toastId: "payment-history-error", // Use unique ID to prevent duplicates
-        });
+        // No toast notification here as per user request to avoid noise
       } finally {
         setLoading(false);
       }

@@ -112,6 +112,8 @@ export default function Hero() {
   ];
 
   return (
-    <HeroParallax products={products} />
+    <section className="relative w-full min-h-screen overflow-hidden">
+      <HeroParallax products={products} />
+    </section>
   );
 }

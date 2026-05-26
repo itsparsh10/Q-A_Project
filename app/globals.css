@@ -11,11 +11,25 @@ html, body {
   overscroll-behavior-y: none;
 }
 
-/* Google Font - Audiowide */
-.audiowide-regular {
-  font-family: "Audiowide", sans-serif;
-  font-weight: 400;
-  font-style: normal;
+.landing-page-active {
+  overflow: auto !important;
+  height: auto !important;
+  width: auto !important;
+}
+
+.landing-page-active body {
+  overflow: auto !important;
+  height: auto !important;
+  width: auto !important;
+}
+
+@layer components {
+  /* Google Font - Audiowide */
+  .audiowide-regular {
+    font-family: var(--font-audiowide), "Audiowide", system-ui;
+    font-weight: 400;
+    font-style: normal;
+  }
 }
 
 /* Landing Page Custom Styles */
@@ -86,34 +100,4 @@ html, body {
 
 .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
   background: #d1d5db;
-}
-
-.hover\:scrollbar-thumb-gray-400:hover::-webkit-scrollbar-thumb {
-  background: #9ca3af;
-}
-
-/* Smooth scrolling for categories */
-.smooth-scroll {
-  scroll-behavior: smooth;
-}
-
-/* Enhanced hover effects for AI tools cards */
-.tool-card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tool-card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-/* Infinite Moving Cards Animation */
-@keyframes scroll {
-  to {
-    transform: translate(calc(-50% - 0.5rem));
-  }
-}
-
-.animate-scroll {
-  animation: scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite;
 }

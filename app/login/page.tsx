@@ -20,19 +20,20 @@ function LoginForm() {
 
   // Check if user is already logged in, redirect appropriately
   useEffect(() => {
-    router.prefetch('/dashboard');
+    // DISABLING PREFETCH TO FIX CHUNKLOADERROR IN DEV
+    // router.prefetch('/all-tools');
     const token = localStorage.getItem('authToken');
     const userData = localStorage.getItem('userData');
     
     if (token && userData) {
       // Check if it's an admin token
       if (token.startsWith('admin-token-')) {
-        router.replace('/admin_dashboard');
+        router.push('/admin_dashboard');
       } else {
-        router.replace(redirectUrl);
+        router.push('/all-tools');
       }
     }
-  }, [router, redirectUrl]);
+  }, [router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -69,7 +70,8 @@ function LoginForm() {
         // Clear logout timestamp since user is now logged in
         localStorage.removeItem('lastLogout');
         
-        // Set cookie for middleware authentication
+        // Clear old cookies and set new one
+        document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         document.cookie = `authToken=${adminToken}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`;
         
         // Show success notification
@@ -86,7 +88,11 @@ function LoginForm() {
         });
         
         // Redirect immediately for faster login UX
-        router.replace(isAdmin ? '/admin_dashboard' : '/dashboard');
+        if (isAdmin) {
+          router.push('/admin_dashboard');
+        } else {
+          router.push('/dashboard');
+        }
         return;
       } catch (error) {
         console.error('Admin login error:', error);
@@ -108,76 +114,50 @@ function LoginForm() {
     
     // Regular user login
     try {
-      const response = await fetch('/api/auth/login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: formData.email, password: formData.password }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (response.ok) {
-        // Store user data in localStorage and set cookie for middleware
-        localStorage.setItem('authToken', data.access);
-        localStorage.setItem('userData', JSON.stringify(data.user));
-        
-        // Clear logout timestamp since user is now logged in
-        localStorage.removeItem('lastLogout');
-        
-        // Set cookie for middleware authentication
-        document.cookie = `authToken=${data.access}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`;
-        
-        // Show success notification
-        toast.success('🎉 Welcome back! Login successful.', {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          toastId: 'login-success',
-        });
-        
-        // Redirect immediately for faster login UX
-        router.replace(redirectUrl);
-      } else {
-        const errorMessage = data.message || 'Invalid email or password. Please try again.';
-        setError(errorMessage);
-        
-        // Show error notification
-        toast.error(`${errorMessage}`, {
-          position: "top-right",
-          autoClose: 4000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          toastId: 'login-error',
-        });
+      if (!res.ok) {
+        throw new Error(data.message || 'Login failed');
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      const errorMessage = 'An error occurred during login. Please try again.';
-      setError(errorMessage);
+
+      // Check if data exists and has the required properties
+      if (!data || !data.access) {
+        throw new Error('Invalid response from server');
+      }
+
+      const token = data.access;
+      const user = data.user;
+
+      // Store user data and authentication tokens
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('userData', JSON.stringify(user));
+      localStorage.removeItem('lastLogout');
       
-      // Show error notification
-      toast.error(`${errorMessage}`, {
+      // Clear old cookies and set new one
+      document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie = `authToken=${token}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Lax`;
+      
+      const isAdmin = user.role === 'admin' || user.email === 'hello@gmail.com';
+      
+      toast.success('Welcome back! Login successful', {
         position: "top-right",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        toastId: 'login-error',
+        autoClose: 3000,
       });
+
+      // Redirect immediately for faster login UX
+      router.push(isAdmin ? '/admin_dashboard' : '/dashboard');
+      return;
+      
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || 'An error occurred during login');
+      toast.error(err.message || 'Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -219,7 +199,7 @@ function LoginForm() {
 
         {/* Login Form */}
         <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} method="POST" className="space-y-6">
             {/* Email Field */}
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium text-white">

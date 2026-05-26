@@ -696,6 +696,13 @@ export default function AdminDashboard() {
               >
                 Logout
               </button>
+              <button
+                onClick={fetchDashboardStats}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm flex items-center gap-2"
+              >
+                <i className="fas fa-sync"></i>
+                Refresh
+              </button>
             </div>
           </div>
         </div>

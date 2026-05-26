@@ -55,10 +55,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Failed to create user' }, { status: 500 });
     }
 
+    // Simple response with user data
     return NextResponse.json({
       message: 'User registered successfully',
       user: {
-        id: created._id,
+        id: String(created._id || created.id),
         email: created.email,
         name: created.name,
       },

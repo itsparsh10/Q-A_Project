@@ -11,41 +11,42 @@ import AIToolsShowcase from './sections/AIToolsShowcase';
 
 export default function LandingPageLayout() {
   useEffect(() => {
-    // Enable scrolling for landing page
-    document.body.style.overflow = 'auto';
-    document.body.style.height = 'auto';
-    document.body.style.width = 'auto';
+    // Apply scrolling behavior through class instead of direct style manipulation
+    document.documentElement.classList.add('landing-page-active');
     
-    // Cleanup - restore original styles when leaving the page
     return () => {
-      document.body.style.overflow = 'hidden';
-      document.body.style.height = '100vh';
-      document.body.style.width = '100vw';
+      document.documentElement.classList.remove('landing-page-active');
     };
   }, []);
 
   return (
-    <div className="w-full bg-gradient-to-br from-slate-50 via-white to-blue-50 overflow-x-hidden">
+    <div className="w-full bg-gradient-to-br from-slate-50 via-white to-blue-50 overflow-x-hidden selection:bg-blue-100 selection:text-blue-900">
       {/* Sticky Promotional Banner */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-[#1d1f89] text-white">
-        <div className="flex items-center justify-center px-3 py-1.5 sm:px-4">
+      <div className="fixed top-0 left-0 right-0 z-[60] bg-[#1d1f89] text-white shadow-md">
+        <div className="flex items-center justify-center px-3 py-2 sm:px-4">
           <div className="flex items-center gap-2 sm:gap-3 text-center">
-            <i className="fas fa-gift text-sm sm:text-base md:text-lg"></i>
-            <span className="font-medium text-xs sm:text-sm md:text-base leading-tight">
+            <i className="fas fa-gift text-sm sm:text-base animate-pulse"></i>
+            <span className="font-semibold text-[10px] sm:text-xs md:text-sm tracking-wide uppercase">
               🎉 Limited Time: Access ALL Premium Features FREE for 14 Days
             </span>
           </div>
         </div>
       </div>
       
-      {/* Add top padding to account for the sticky banner */}
-      <div className="pt-14 sm:pt-12">
+      {/* Main Content Wrapper with proper padding for the sticky banner */}
+      <div className="relative pt-10 sm:pt-11">
         <Header />
-        <main className="relative">
+        <main className="relative pt-4">
           <Hero />
-          <Features />
-          <AIToolsShowcase/>
-          <Pricing />
+          <div id="features">
+            <Features />
+          </div>
+          <div id="tools">
+            <AIToolsShowcase/>
+          </div>
+          <div id="pricing">
+            <Pricing />
+          </div>
           <CallToAction />
         </main>
         <Footer />

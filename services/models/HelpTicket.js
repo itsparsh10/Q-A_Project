@@ -33,7 +33,7 @@ async function find(query = {}) {
 async function create(data) {
   const sb = getSupabase();
   const row = {
-    user_id: data.userId,
+    user_id: String(data.userId),
     user_name: data.userName,
     user_email: data.userEmail,
     subject: data.subject,
@@ -44,12 +44,15 @@ async function create(data) {
     admin_response: data.adminResponse,
     admin_id: data.adminId,
     resolved_at: data.resolvedAt,
-    created_at: data.createdAt ? new Date(data.createdAt).toISOString() : undefined,
-    updated_at: data.updatedAt ? new Date(data.updatedAt).toISOString() : undefined,
+    created_at: data.createdAt ? new Date(data.createdAt).toISOString() : new Date().toISOString(),
+    updated_at: data.updatedAt ? new Date(data.updatedAt).toISOString() : new Date().toISOString(),
   };
-  const { data: inserted, error } = await sb.from('help_tickets').insert(row).select('*').single();
-  if (error) throw error;
-  return toDoc(inserted);
+  const response = await sb.from('help_tickets').insert(row).select('*').maybeSingle();
+  if (response.error) {
+    console.error('HelpTicket.create database error:', response.error);
+    throw response.error;
+  }
+  return toDoc(response.data);
 }
 
 const HelpTicket = { find, create };

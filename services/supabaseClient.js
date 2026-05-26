@@ -16,6 +16,7 @@ class QueryBuilder {
     this._projection = null;
     this._sort = null;
     this._limit = null;
+    this._skip = null;
     this._op = null; // 'insert'|'update'|'delete'
     this._updateDoc = null;
     this._insertDoc = null;
@@ -117,9 +118,15 @@ class QueryBuilder {
       }
       if (this._op === 'update') {
         const collection = await this.getCollection();
-        const res = await collection.findOneAndUpdate(this.filter, { $set: this._updateDoc }, { returnDocument: 'after' });
-        if (res.value && res.value._id && !res.value.id) res.value.id = String(res.value._id);
-        return { data: res.value, error: null };
+        const res = await collection.findOneAndUpdate(
+          this.filter, 
+          { $set: this._updateDoc }, 
+          { returnDocument: 'after' }
+        );
+        // MongoDB driver v4+ returns the document directly or in .value depending on version/config
+        const doc = res.value || res;
+        if (doc && doc._id && !doc.id) doc.id = String(doc._id);
+        return { data: (doc && doc._id) ? doc : null, error: null };
       }
       if (this._op === 'delete') {
         const collection = await this.getCollection();
@@ -132,14 +139,21 @@ class QueryBuilder {
       if (doc && doc._id && !doc.id) doc.id = String(doc._id);
       return { data: doc, error: null };
     } catch (err) {
+      console.error('Supabase Mock Error:', err);
       return { data: null, error: err };
     }
   }
 
   async single() {
     const r = await this.maybeSingle();
-    if (r.error) throw r.error;
-    if (!r.data) throw new Error('No rows returned');
+    if (r.error) {
+      console.error('Supabase single() error:', r.error);
+      throw r.error;
+    }
+    if (!r.data) {
+      console.warn('Supabase single() - No rows returned for filter:', JSON.stringify(this.filter));
+      return { data: null, error: new Error('No rows returned') };
+    }
     return r;
   }
 

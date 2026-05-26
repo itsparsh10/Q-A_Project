@@ -1,9 +1,13 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="Markzy UI Tests">
-    <test name="Authentication Tests">
+    <test name="UI Tests">
         <classes>
             <class name="com.markzy.tests.RegisterTest"/>
             <class name="com.markzy.tests.LoginTest"/>
+            <class name="com.markzy.tests.SupportTicketTest"/>
+            <class name="com.markzy.tests.ProfileManagementTest"/>
+            <class name="com.markzy.tests.FormQueryTest"/>
+            <class name="com.markzy.tests.AdminDashboardTest"/>
         </classes>
     </test>
 </suite>

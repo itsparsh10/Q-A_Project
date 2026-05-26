@@ -27,8 +27,11 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
 
   useEffect(() => {
     const checkAuth = () => {
+      // Normalize pathname to handle trailing slashes
+      const currentPath = pathname === '/' ? '/' : pathname.replace(/\/$/, '');
+      
       // If current route is public, allow access immediately without loading
-      if (publicRoutes.includes(pathname)) {
+      if (publicRoutes.includes(currentPath)) {
         setIsAuthenticated(true);
         setIsLoading(false);
         return;

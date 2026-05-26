@@ -52,10 +52,29 @@ export async function POST(request: NextRequest) {
       { expiresIn: '24h' }
     );
     
+    // Set cookie for browser sessions
+    const response = NextResponse.json({
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        additionalData: user.additionalData
+      },
+      access: token
+    });
+
+    response.cookies.set('authToken', token, {
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60,
+      sameSite: 'lax',
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+    });
+    
     // Log the login session
     try {
       const sessionLog = new SessionLog({
-        userId: user._id,
+        userId: String(user._id || user.id),
         loginAt: new Date(),
         ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
         userAgent: request.headers.get('user-agent') || 'unknown',
@@ -69,16 +88,7 @@ export async function POST(request: NextRequest) {
       // Don't fail login if session logging fails
     }
     
-    // Simple response with user data
-    return NextResponse.json({
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
-        additionalData: user.additionalData
-      },
-      access: token
-    });
+    return response;
     
   } catch (error) {
     console.error('Login error:', error);
