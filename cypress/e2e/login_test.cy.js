@@ -39,8 +39,8 @@ describe('Login Functionality - UI & API', () => {
     cy.get('input[name="email"]').type(credentials.email);
     cy.get('input[name="password"]').type(credentials.password);
     
-    // Wait for Next.js hydration to complete so the native form submission doesn't override the React onSubmit handler
-    cy.wait(2000);
+    // Ensure the button is interactive and form is ready without hardcoded waits
+    cy.get('button[type="submit"]').should('not.be.disabled');
 
     // NOTE: hello@gmail.com uses a hardcoded bypass in the frontend 
     // and does NOT trigger a real API request. 

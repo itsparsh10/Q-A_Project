@@ -20,12 +20,6 @@ describe('Support Ticket - Single Session E2E', () => {
     priority: 'high'
   };
 
-  // Handle hydration/uncaught exceptions
-  Cypress.on('uncaught:exception', (err) => {
-    // Return false to prevent Cypress from failing the test
-    // on uncaught exceptions (like Stop commands, Hydration errors, etc.)
-    return false;
-  });
 
   it('Should complete the full Support Ticket journey in one session', () => {
     // 1. Setup Intercepts
@@ -47,7 +41,7 @@ describe('Support Ticket - Single Session E2E', () => {
     cy.visit('/login');
     cy.get('input[name="email"]').type(credentials.email);
     cy.get('input[name="password"]').type(credentials.password);
-    cy.wait(1000); // Wait for hydration
+    cy.get('button[type="submit"]').should('not.be.disabled');
     cy.get('form').within(() => {
       cy.get('button[type="submit"]').click();
     });
@@ -73,9 +67,11 @@ describe('Support Ticket - Single Session E2E', () => {
     cy.get('input[placeholder="Brief description of your issue"]').clear().type(ticketData.subject);
     cy.get('textarea[placeholder*="detailed information"]').clear().type(ticketData.description);
 
-    // 6. Submit Ticket
-    cy.contains('button', 'Submit Ticket').click();
+    // 6. Submit Ticket (target the form's submit button, not the header toggle)
+    cy.get('form').contains('button', 'Submit Ticket').click();
 
-    cy.log('Support Ticket E2E Test Completed: Stopping without waiting for submission completion.');
+    // Wait for the API response to avoid aborting the request in CI
+    cy.wait('@submitTicket').its('response.statusCode').should('eq', 200);
+    cy.log('Support Ticket E2E Test Completed Successfully');
   });
 });

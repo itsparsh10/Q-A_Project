@@ -45,9 +45,6 @@ describe('Admin Dashboard Flow', () => {
 
       // Verify content for each tab
       cy.get('div.max-w-full').should('exist');
-      
-      // Short pause to visualize the transition, similar to Thread.sleep in Selenium
-      cy.wait(800); 
     });
   });
 });

@@ -19,13 +19,6 @@ describe('Profile Management - Single Session E2E', () => {
     website: `https://test-${uniqueId}.markzy.ai`
   };
 
-  // Handle hydration/uncaught exceptions
-  Cypress.on('uncaught:exception', (err) => {
-    if (err.message.includes('Hydration failed') || err.message.includes('Minified React error')) {
-      return false;
-    }
-    return true;
-  });
 
   it('Should complete the full Profile Management journey in one session', () => {
     // 1. Setup Intercepts
@@ -41,7 +34,7 @@ describe('Profile Management - Single Session E2E', () => {
     cy.visit('/login');
     cy.get('input[name="email"]').type(credentials.email);
     cy.get('input[name="password"]').type(credentials.password);
-    cy.wait(1000); // Wait for hydration
+    cy.get('button[type="submit"]').should('not.be.disabled');
     cy.get('form').within(() => {
       cy.get('button[type="submit"]').click();
     });

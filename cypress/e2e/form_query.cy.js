@@ -13,13 +13,6 @@ describe('Form Query Functionality - UI & API', () => {
     message: 'This is a test message from Cypress E2E automation.'
   };
 
-  // Handle hydration/uncaught exceptions commonly found in Next.js apps
-  Cypress.on('uncaught:exception', (err) => {
-    if (err.message.includes('Hydration failed') || err.message.includes('Minified React error')) {
-      return false;
-    }
-    return true;
-  });
 
   beforeEach(() => {
     // Visit the landing page where the CallToAction form is located
