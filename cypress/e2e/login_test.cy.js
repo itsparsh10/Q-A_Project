@@ -54,7 +54,7 @@ describe('Login Functionality - UI & API', () => {
     cy.contains('Welcome back! Login successful', { timeout: 15000 }).should('be.visible');
     cy.log('Toastify Notification Verified Successfully');
 
-    // Redirection check: hello@gmail.com redirects to /all-tools
-    cy.url({ timeout: 20000 }).should('include', '/all-tools');
+    // Redirection check: hello@gmail.com redirects to /dashboard
+    cy.url({ timeout: 20000 }).should('include', '/dashboard');
   });
 });
