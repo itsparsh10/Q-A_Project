@@ -154,23 +154,17 @@ export default function Register() {
           subscribeNewsletter: formData.subscribeNewsletter
         };
 
-        // Mock registration logic for testing
-        let responseOk = true;
-        let data = { message: "Success" };
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+        
+        const data = await response.json();
 
-        if (!responseOk) {
-          const response = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData),
-          });
-          data = await response.json();
-          responseOk = response.ok;
-        }
-
-        if (responseOk) {
+        if (response.ok) {
           // Registration successful - redirect to login page
           toast.success('🎉 Registration successful! Please login to access your account.', {
             position: "top-right",
@@ -185,7 +179,7 @@ export default function Register() {
           });
           
           // Redirect immediately for faster signup flow
-          router.replace('/login');
+          router.push('/login');
         } else {
           // Registration failed
           const errorMessage = data.message || 'Registration failed. Please try again.';
@@ -583,8 +577,8 @@ export default function Register() {
               className="h-12 w-auto invert brightness-0" 
             />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-blue-100">Sign in to your Markzy account</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Join Markzy.ai</h1>
+          <p className="text-blue-100">Start your journey with AI-powered marketing</p>
         </div>
 
         {/* Progress Bar */}

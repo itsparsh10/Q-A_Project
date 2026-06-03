@@ -15,7 +15,10 @@ describe('Registration Functionality - UI & API', () => {
     jobTitle: 'Senior Engineer',
     companySize: '11-50 employees',
     industry: 'Technology',
-    monthlyBudget: '$1,000 - $5,000'
+    monthlyBudget: '$1,000 - $5,000',
+    website: 'https://markzy.ai',
+    marketingGoals: ['Lead Generation', 'Sales Growth'],
+    marketingTools: ['HubSpot', 'Mailchimp']
   };
 
   beforeEach(() => {
@@ -25,7 +28,7 @@ describe('Registration Functionality - UI & API', () => {
   it('1. UI: Should render the Registration page correctly', () => {
     cy.get('body').should('be.visible');
     // The page has two H1/H2 tags, we target the one in the header
-    cy.get('h1').should('contain', 'Welcome Back'); 
+    cy.get('h1').should('contain', 'Join Markzy.ai'); 
     cy.get('h2').should('contain', 'Create Your Account');
     cy.get('form').should('be.visible');
   });
@@ -54,20 +57,39 @@ describe('Registration Functionality - UI & API', () => {
     // --- STEP 3: Marketing Preferences ---
     cy.get('h2', { timeout: 10000 }).should('contain', 'Marketing Preferences');
     
+    // Select some marketing goals (Fixed: These are labels, not buttons)
+    cy.contains('label', 'Lead Generation').click({ force: true });
+    cy.contains('label', 'Sales Growth').click({ force: true });
+
+    // Select monthly budget
+    cy.get('select[name="monthlyBudget"]').select(newUser.monthlyBudget, { force: true });
+
     // The checkbox in Step 3 is required for the "Create Account" button
     cy.get('input[name="agreeToTerms"]').check({ force: true });
+
+    // Intercept the API call to verify the payload
+    cy.intercept('POST', '/api/auth/register').as('registerUser');
 
     // Submit the form
     cy.contains('button', 'Create Account').should('not.be.disabled').click({ force: true });
 
     // --- REDIRECTION ---
+    // Wait for the API response
+    cy.wait('@registerUser').then((interception) => {
+      expect(interception.response.statusCode).to.be.oneOf([200, 201]);
+      expect(interception.response.body).to.have.property('message', 'User registered successfully');
+    });
+
     // Wait for the redirect to Login page
     cy.url({ timeout: 20000 }).should('include', '/login');
     cy.get('h1').should('contain', 'Welcome Back');
   });
 
   it('3. API: Should register a new user successfully via direct API call', () => {
-    const apiUser = { ...newUser, email: `api_dev_${Date.now()}@markzy.ai` };
+    const apiUser = { 
+      ...newUser, 
+      email: `api_dev_${Date.now()}@markzy.ai`
+    };
     cy.request({
       method: 'POST',
       url: '/api/auth/register',
@@ -76,6 +98,8 @@ describe('Registration Functionality - UI & API', () => {
     }).then((response) => {
       // Expect 200/201
       expect([200, 201]).to.include(response.status);
+      expect(response.body).to.have.property('message', 'User registered successfully');
+      expect(response.body).to.have.property('user');
     });
   });
 });
