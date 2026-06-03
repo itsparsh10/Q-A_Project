@@ -26,11 +26,10 @@ function LoginForm() {
     const userData = localStorage.getItem('userData');
     
     if (token && userData) {
-      // Check if it's an admin token
       if (token.startsWith('admin-token-')) {
         router.push('/admin_dashboard');
       } else {
-        router.push('/all-tools');
+        router.push('/dashboard');
       }
     }
   }, [router]);
