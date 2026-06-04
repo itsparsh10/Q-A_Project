@@ -51,8 +51,8 @@ public class RegisterTest extends BaseTest {
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", continueBtn2);
 
         // Step 3: Marketing Preferences
-        WebElement agreeTermsDiv = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@name='agreeToTerms']/parent::div")));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", agreeTermsDiv);
+        WebElement agreeTermsLabel = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@name='agreeToTerms']/ancestor::label")));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", agreeTermsLabel);
         
         Thread.sleep(1000); // Wait for React state to process
 
